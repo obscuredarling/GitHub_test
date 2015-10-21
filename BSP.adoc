@@ -1,0 +1,354 @@
+= BSP v4.1 User Manual
+:toc:
+:toc-placement: manual
+:Author: 
+:Email: Shirley@andestech.com
+:Date: 2015/9/18
+:Revision: 0.5
+:docinfo:
+:docyear: {sys: date +%Y}
+:copyright: 2014-{docyear}
+:ndsdoc: BSP_v4.1_User_Manual
+
+////////////////////
+[revhistory]
+|============
+|NUMBER |DATE     |NAME | DESCRIPTION
+| 1.0   |2014/2/1 | SL
+| [line-through]#. Added <<Chapter2, Chapter 2>>#
+[line-through]#. Added revision history#
+|0.5   |2015/1/1 |SL
+| [line-through]#* Test1
+* Test2#
+|============
+////////////////////
+
+== Andes Toolchain Overview
+Andes toolchains are grouped with respect to the implementation versions of the Andes’ instruction set architecture (ISA). The naming of Andes toolchains denotes the endianness (“be” = big endian; “le” = little endian), library support (“elf” = newlib/mculib; “linux” = glibc/uclibc), and Andes ISA implementation version (v3, v3f, v3s, v3m, v3j). Table 1 summarizes Andes toolchains in BSP v4.0 suggested for developing with Andes cores.
+
+.Suggested Toolchains for Developing with Andes Cores
+|====================
+.3+^.^h|Toolchain Name  8+^h|Andes Cores 
+3+^h|N1337-S/N1068-A .2+^.^h|D1088  .2+^.^h|N968A-S .2+^.^h|S801  .2+^.^h|N801-S  .2+^.^h|N705-S   
+^h|--  ^h|+FPU  ^h|+SPU
+|nds32le-elf-newlib-v3   ^|V  |  |  ^|V  ^|V  | | |
+|nds32le-elf-newlib-v3j  |  |  |  |  ^|V  |  |  |  
+|nds32le-elf-newlib-v3m  |  |  |  |  |  ^|V   ^|V   ^|V
+|nds32le-elf-newlib-v3f  |  ^|V  |  |  |  |  |  |  
+|nds32le-elf-newlib-v3s  |  | ^|V |  |  |  |  | 
+|====================
+
+== Bootstrapping
+=== Board Boot-up
+==== Boot Console Port Settings
+Start a boot console terminal with the below port setting: +
+Baud Rate: 38400 +
+Data: 8bit +
+Parity: none +
+Stop: 1 bit +
+Flow control: none +
+
+==== Board Power On
+Switch the “PWR” toggle switch on and press the “PWR ON” button to power-on the AndeShape™ board. The boot message shows in the console then, prompting you to select the desired booting option by pressing the corresponding GPIO key.
+
+Take ADP_XC5 with AG101P for example. The following is its boot message: +
+image:images/BSP/bootmsg.jpg[]
+
+In this case, press SW4 to run the diagnostic program and the following message will ensue. +
+image:images/BSP/diagnosis_menu.jpg[] 
+
+Note that the boot message varies depending on the target system. Please consult the user manual accompanied with the target system for
+specifications and power up procedures.
+
+== Target Connection
+During program development, you can debug your programs on a local target system (ex. simulator target) or a remote target system (ex. AICE target). This chapter introduces how to establish commg   unication between the host and the target. The figure below gives an overview illustration of target connection flows. +
+
+.Target Connection Flow Overview
+image::images/BSP/target-connect-flow.jpg[]
+
+=== Debugging on a Simulator Target
+The basic procedure of performing debugging on a simulator via GDB involves following steps:
+
+. Obtaining a pre-built simulator configuration file and copy it to a directory of choice. Make sure the toolchain of the configuration file matches with that of the desired demo application program. +
+
+. Open a console and initiate the simulator. +
++$ sid *<PROJECT>*.conf+ +
+In the message that the simulator generates upon activation, take note of the port number. +
++socketiobase: server at 0.0.0.0: *<PORT_NUMBER>*+ +
+For example, +
+`$ sid ../toolchains/nds32le-elf-newlib-v3/config/nds32-target-` +
+`config.conf` +
+`socketiobase: using fd 4` +
+`socketiobase: server at 0.0.0.0:` *`9898`* +
+`GDB init ...` + 
+`VEPsocketio: init ...` +
+`socketiobase: using fd 5` + 
+`socketiobase: server at 0.0.0.0:9899` +
+The port number of the simulator is known as *`9898`* in the example.
+
+. Open another console and initiate GDB. +
++$ nds32le-elf-gdb *<PROJECT_EXECUTABLE>*+
+
+. Enter the port number to build the connection to the simulator. +
+`(gdb) target remote [host_IP]:` *`<PORT_NUMBER>`* +
+For example: +
++(gdb) target remote : *9898*+ +
++Remote debugging using:9898+ +
++0x00000000 in ?? ()+
+
+
+. Load +*<PROJECT_EXECUTABLE>*+ then (and load its symbols for debugger use). +
++(gdb) load+
+
+=== AICE Target
+The below illustrates the network between the host and the target when attempting to debug a board target
+through Andes ICE Box (AICE).
+
+.Network between Host and AICE Target
+image::images/BSP/Host_AICEtarget_Network.jpg[]
+        
+To debug a board target with AICE via GDB, follow the below procedure:
+
+. Have the real evaluation platform and the connected Andes ICE Box installed. (Please refer to _AICE Quick Start Guide_ for Andes ICE Box installation procedure.) 
++
+[NOTE]
+====
+AICE with firmware version 1.6.6 only
+supports platforms with N10 or above core versions.
+====
++
+
+. Open a communication program, such as Hyper Terminal, and choose the com port being connected. 
+
+. Set the port settings as follows: +
+image:images/BSP/COM_port.jpg[]
+
+. Toggle on the power switch of the EVB and find
+the on-board LED is illuminated. Then, press the “PWR ON” button. 
+
+. Initiate the stand-alone AICE controller program “ICEman” on the debug host and specify an available port. +
++$ ICEman.exe --port *<PORT_NUMBER>*+ 
++
+[NOTE]
+====
+. For help on ICEman, enter `$ ICEman -h`
+. `--port` or `-p` is for GDB connection; when executing flashing programming, issue `--bport` or `-b` to specify an available socket port (default to
+`2354`) for the burner.
+. Use `-P` to specify the SPL PASSCODE of the released netlist during ICEman startup if using S801‐S with
+PASSCODE enabled.
+====
++
+
+. Open a console and initiate GDB. +
++$ nds32le-elf-gdb *<PROJECT_EXECUTABLE>*+
+
+. Enter the specified port number to build the
+host-target connection. +
++(gdb) target remote : *<PORT_NUMBER>*+
+
+. Load *`<PROJECT_EXECUTABLE>`* then (and load its symbols for debugger use). +
++(gdb) load+
+
+. Proceed to execute the program. +
++(gdb) c+
+
+
+== Code Coverage
+BSP v4.0 comes with the code coverage
+utility “gcov” for you to measure what percentage of your code has been executed.
+
+=== GCOV
+*NAME* +
+`gcov` +
+
+*SYNOPSIS* +
+`gcov   [-a|--all-blocks]` +
+`[-b|--branch-probabilities]` +
+`[-c|--branch-counts]` +
+*`<SOURCE_FILE>`* +
+
+[frame="none", grid="none"]
+|====================
+|`gcov`  |`[-a|--all-blocks]`   
+|  |`[-b|--branch-probabilities]`  
+|  |`[-c|--branch-counts]`  
+|  |`[-l|--long-file-names]`  
+|  |`[-f|--function-summaries]` 
+|  |*`<SOURCE_FILE>`*
+| |
+|====================
+
+
+*DESCRIPTION* +
+Gcov is a test coverage program. You can use it in concert with GCC to analyze your programs and find out some performance statistics, such as how often each line of code executes and what lines of code are actually executed.
+
+Before using gcov, you must compile your program with the GCC option `--coverage` first. This tells compiler to generate additional information needed by gcov and also includes additional code in the object files for generating the
+extra profiling information needed by gcov.
+
+The `--coverage` option is a synonym for `-fprofile-arcs -ftest-coverage` (when compiling) and `-lgcov` (when linking). It is used to compile and link code instrumented for coverage analysis such as program flow `arcs`. During execution, the program records how many times each branch and call is executed
+and how many times it is taken or returns. When the compiled program exits, it saves the data to a file called `*.gcda` for each source file and produces a notes file `*.gcno` that the gcov utility can use to show program coverage.
+
+.*OPTIONS*
+`-a, --all-blocks`:: 
+Write individual execution counts for every basic block. Normally gcov outputs execution counts only for the
+main blocks of a line.
+`-b, --branch-probabilities`::
+Write branch frequencies to the output file, and write branch summary information to the standard output.
+
+=== Example
+Given a source file like below, a coverage analysis can be
+performed:
+
+----
+======== start of ssort.c ========
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+int select_min_index(double [], int);
+void swap(double *, double *);
+char *num[]={"100","20","30","40","50"};
+int main() {
+    int i, min, cnt;
+    double *data;
+    cnt=5;
+
+    data = malloc(sizeof(double) * (cnt+1));
+    assert(data);
+    for (i=0; i<cnt; ++i) {
+        data[i] = atof(num[i]);
+    }
+    for (i=0; i<cnt; ++i) {
+        min = select_min_index(data+i, cnt-i);
+        swap(data+i, data+i+min);
+    }
+    for (i=0; i<cnt; ++i) {
+        printf(" %f", data[i]);
+    }
+    printf("\n");
+        return 0;
+}
+
+int select_min_index(double data[], int N) {
+    int j, min = 0;
+    for (j=1; j<N; ++j) {
+        if (data[j] < data[min])
+            min = j;
+    }
+    return min;
+}
+
+void swap(double *x, double *y) {
+    double t;
+    t = *x;
+    *x = *y;
+    *y = t;
+}
+ ======== end of ssort.c ========
+----
+
+The generated gcov file is as follows:
+----
+ -:    0:Source:ssort.c
+        -:    0:Graph:ssort.gcno
+        -:    0:Data:ssort.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <assert.h>
+        -:    4:
+        -:    5:int select_min_index(double [], int);
+        -:    6:void swap(double *, double *);
+        -:    7:char *num[]={"100","20","30","40","50"};
+function main called 1 returned 100% blocks executed 94%
+        1:    8:int main() {
+        -:    9:    int i, min, cnt;
+        -:   10:    double *data;
+        1:   11:    cnt=5;
+        -:   12:
+        1:   13:    data = malloc(sizeof(double) * (cnt+1));
+        1:   14:    assert(data);
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+call    2 never executed
+        6:   15:    for (i=0; i<cnt; ++i) {
+branch  0 taken 83%
+branch  1 taken 17% (fallthrough)
+        5:   16:        data[i] = atof(num[i]);
+call    0 returned 100%
+        -:   17:    }
+        6:   18:    for (i=0; i<cnt; ++i) {
+branch  0 taken 83%
+branch  1 taken 17% (fallthrough)
+        5:   19:        min = select_min_index(data+i, cnt-i);
+call    0 returned 100%
+        5:   20:        swap(data+i, data+i+min);
+call    0 returned 100%
+        -:   21:    }
+        6:   22:    for (i=0; i<cnt; ++i) {
+branch  0 taken 83%
+branch  1 taken 17% (fallthrough)
+        5:   23:        printf(" %f", data[i]);
+call    0 returned 100%
+        -:   24:    }
+        1:   25:    printf("\n");
+call    0 returned 100%
+        1:   26:        return 0;
+        -:   27:}
+        -:   28:
+function select_min_index called 5 returned 100% blocks executed 100%
+        5:   29:int select_min_index(double data[], int N) {
+        5:   30:    int j, min = 0;
+       15:   31:    for (j=1; j<N; ++j) {
+branch  0 taken 67%
+branch  1 taken 33% (fallthrough)
+       10:   32:        if (data[j] < data[min])
+branch  0 taken 40% (fallthrough)
+branch  1 taken 60%
+        4:   33:            min = j;
+        -:   34:    }
+        5:   35:    return min;
+        -:   36:}
+        -:   37:
+function swap called 5 returned 100% blocks executed 100%
+        5:   38:void swap(double *x, double *y) {
+        -:   39:    double t;
+        5:   40:    t = *x;
+        5:   41:    *x = *y;
+        5:   42:    *y = t;
+        5:   43:}
+        -:   44:
+----
+
+
+.FreeRTOS Demo Applications Overview
+[cols="15%,15%,10%,10%,24%,13%,13%"]
+|====================
+.2+h|FreeRTOS Demo Application  h|Compatible Target  2+h|Platform  .2+h|Verifited Toolchain  .2+h|Library  .2+h|Constrains   
+h|Target board with ICE downloading  h|AG101P  h|AE210P 
+|jpeg  |○  |○  |&#215;  |nds32le-elf-[newlib&nbsp;&#124;&nbsp;mculib]  |self-contained  |  
+|wavbmp  |○  |○  |&#215;  |nds32le-elf-[newlib&nbsp;&#124;&nbsp;mculib]  |self-contained  |   
+|mac2  |○  |○  |&#215;  |nds32le-elf-newlib or nds32le-elf-mculib  |self-contained  |Please refer to Section     
+|==================== 
+
+
+----
+freertos
+|-- rtos-comm
+|   |-- app
+|   |-- bsp
+|   |-- cli
+|   |-- driver
+|   |-- include
+|   |-- kmem
+|   |-- libc
+|   `-- library
+`-- rtos-freertos
+    `-- freertos
+        |-- debug
+        |-- hal
+        |-- kernel
+        |-- nds32
+        `-- ParTest
+----
