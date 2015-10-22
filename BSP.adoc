@@ -351,4 +351,263 @@ freertos
         |-- kernel
         |-- nds32
         `-- ParTest
+---
+
 ----
+<o:p>&nbsp;</o:p>
+
+Usage: +
+`nds32le-elf-gcc [options] file...`
+
+*[big]#Options:#*
+
+----
+-pass-exit-codes
+Exit with highest error code from a phase
+
+
+--help
+Display this information
+
+--target-help
+Display target specific command line options
+
+--help={common|optimizers|params|target|warnings|[^]{joined|separate|undocumented}}[,...]
+Display specific types of command line options
+(Use '-v --help' to display command line options of sub-processes)
+
+--version
+Display compiler version information
+
+-dumpspecs
+Display all of the built in spec strings
+
+|   
+-dumpversion<o:p></o:p>
+
+   |   
+Display the version of the compiler<o:p></o:p>
+
+|   
+-dumpmachine<o:p></o:p>
+
+   |   
+Display the compiler's target processor<o:p></o:p>
+
+|   
+-print-search-dirs<o:p></o:p>
+
+   |   
+Display the directories in the compiler's search path<o:p></o:p>
+
+|   
+-print-libgcc-file-name<o:p></o:p>
+
+   |   
+Display the name of the compiler's companion library<o:p></o:p>
+
+|   
+-print-file-name=<lib><o:p></o:p>
+
+   |   
+Display the full path to library <lib><o:p></o:p>
+
+|   
+-print-prog-name=<prog><o:p></o:p>
+
+   |   
+Display the full path to compiler component <prog><o:p></o:p>
+
+|   
+-print-multiarch<o:p></o:p>
+
+   |   
+Display the target's normalized GNU triplet, used as a
+  component in the library path<o:p></o:p>
+
+|   
+-print-multi-directory<o:p></o:p>
+
+   |   
+Display the root directory for versions of libgcc<o:p></o:p>
+
+|   
+-print-multi-lib<o:p></o:p>
+
+   |   
+Display the mapping between command line options and multiple
+  library search directories<o:p></o:p>
+
+|   
+-print-multi-os-directory<o:p></o:p>
+
+   |   
+Display the relative path to OS libraries<o:p></o:p>
+
+|   
+-print-sysroot<o:p></o:p>
+
+   |   
+Display the target libraries directory<o:p></o:p>
+
+|   
+-print-sysroot-headers-suffix <o:p></o:p>
+
+   |   
+Display the sysroot suffix used to find headers<o:p></o:p>
+
+|   
+-Wa,<options><o:p></o:p>
+
+   |   
+Pass comma-separated <options> on to the
+  assembler<o:p></o:p>
+
+|   
+-Wp,<options><o:p></o:p>
+
+   |   
+Pass comma-separated <options> on to the
+  preprocessor<o:p></o:p>
+
+|   
+-Wl,<options><o:p></o:p>
+
+   |   
+Pass comma-separated <options> on to the linker<o:p></o:p>
+
+|   
+-Xassembler <arg><o:p></o:p>
+
+   |   
+Pass <arg> on to the assembler<o:p></o:p>
+
+|   
+-Xpreprocessor <arg><o:p></o:p>
+
+   |   
+Pass <arg> on to the preprocessor<o:p></o:p>
+
+|   
+-Xlinker <arg> <o:p></o:p>
+
+   |   
+Pass <arg> on to the linker<o:p></o:p>
+
+|   
+-save-temps<o:p></o:p>
+
+   |   
+Do not delete intermediate files<o:p></o:p>
+
+|   
+-save-temps=<arg><o:p></o:p>
+
+   |   
+Do not delete intermediate files<o:p></o:p>
+
+|   
+-no-canonical-prefixes<o:p></o:p>
+
+   |   
+Do not canonicalize paths when building relative prefixes
+  to other gcc components<o:p></o:p>
+
+|   
+-pipe<o:p></o:p>
+
+   |   
+Use pipes rather than intermediate files<o:p></o:p>
+
+|   
+-time<o:p></o:p>
+
+   |   
+Time the execution of each subprocess<o:p></o:p>
+
+|   
+-specs=<file><o:p></o:p>
+
+   |   
+Override built-in specs with the contents of
+  <file><o:p></o:p>
+
+|   
+-std=<standard><o:p></o:p>
+
+   |   
+Assume that the input sources are for <standard><o:p></o:p>
+
+|   
+--sysroot=<directory><o:p></o:p>
+
+   |   
+Use <directory> as the root directory for headers
+  and libraries<o:p></o:p>
+
+|   
+-B <directory>
+
+   |   
+Add <directory> to the compiler's search paths
+
+|   
+-v
+
+   |   
+Display the programs invoked by the compiler
+|   
+-###
+
+   |   
+Like -v but options quoted and commands not executed
+
+|   
+-E
+
+|   
+Preprocess only; do not compile, assemble or link
+
+|   
+-S
+
+|   
+Compile only; do not assemble or link<o:p></o:p>
+
+|   
+-c
+
+ |   
+Compile and assemble, but do not link<o:p></o:p>
+
+|   
+-o 
+
+   |   
+Place the output into <file><o:p></o:p>
+
+|   
+-pie
+
+|   
+Create a position independent executable<o:p></o:p>
+
+|   
+-x 
+
+   |   
+Specify the language of the following input files.
+
+Permissible languages include: c c++ assembler none
+  'none' means revert to the default behavior of guessing the language based on
+  the file's extension<o:p></o:p>
+
+|   
+
+|   
+Options
+  starting with -g, -f, -m, -O, -W, or --param are automatically passed on to
+  the various sub-processes invoked by nds32le-elf-gcc.  In order to pass other options on to these
+  processes the -W<letter> options must be used.<o:p></o:p>
+
+|====
